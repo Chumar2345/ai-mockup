@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,8 @@ import { db } from "@/utils/db";
 import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import { useRouter } from "next/navigation";
+import { desc, eq } from "drizzle-orm";
+
 
 function AddNewInterview() {
   const [openDialog, setOpenDialog] = useState(false);
@@ -28,6 +30,32 @@ function AddNewInterview() {
   const [jsonResponse, setJsonResponse] = useState([]);
   const { user } = useUser();
   const router = useRouter();
+  const [InterviewList, setInterviewList] = useState([]);
+  const [interviewCount, setInterviewCount] = useState(0);
+
+  useEffect(() => {
+    user && GetInterviewList();
+  }, [user]);
+  
+  const GetInterviewList = async () => {
+    const result = await db
+      .select()
+      .from(MockInterview)
+      .where(
+        eq(MockInterview.createdBy, user?.primaryEmailAddress?.emailAddress)
+      )
+      .orderBy(desc(MockInterview.id));
+  
+        setInterviewList(result.length);
+  };
+  const handleAddInterview = () => {
+    console.log(InterviewList)
+    if (InterviewList <= 3) {
+      setOpenDialog(true);
+    } else {
+      alert("You have already added 3 interviews. You cannot add more."); 
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -77,24 +105,12 @@ function AddNewInterview() {
       setLoading(false);
     }
   };
-const hasLessThan3Interviews = 2
-  const handleAddInterview = () => {
-    if (hasLessThan3Interviews < 3) {
-      // Proceed to add the interview if less than 3 interviews
-      console.log('Interview Added:');
-      setOpenDialog(true);
-    } else {
-      // Show a message if the user already has 3 or more interviews
-      alert("You have already added 3 interviews. You cannot add more."); 
-    }
-  };
-
 
   return (
     <div>
   <div
     className="p-10 border rounded-lg bg-secondary hover:scale-105 hover:shadow-md cursor-pointer transition-all"
-    onClick={() => handleAddInterview()} 
+    onClick={handleAddInterview}
   >
     <h1 className="font-bold text-lg text-center">+ Add New</h1>
   </div>
