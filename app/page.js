@@ -1,13 +1,14 @@
 "use client";
 import Image from 'next/image';
 import Link from 'next/link';
-import { useUser } from '@clerk/nextjs'; // Import the useUser hook
+// Import the useUser hook
 import { useRouter } from 'next/navigation'; // Import useRouter for handling routing
+import { useAuth, useUser,UserButton } from "@clerk/nextjs";
 
 export default function Home() {
-  const { isSignedIn } = useUser(); // Check if the user is signed in
+  // const { isSignedIn } = useUser(); // Check if the user is signed in
   const router = useRouter(); // Initialize the router
-
+  const { isSignedIn } = useAuth();
   // Handler to reset the URL to the domain root when clicking AI MOCK INTERVIEW or refreshing the page
   const resetUrl = () => {
     router.replace('/'); // Replaces the current URL with just the domain
@@ -20,6 +21,11 @@ export default function Home() {
       top: 0,
       behavior: 'smooth', // Smooth scroll effect
     });
+  };
+
+  const handleAuthRedirect = (e, path) => {
+    e.preventDefault();
+    window.location.href = path; // Redirect to the desired path
   };
 
   return (
@@ -38,20 +44,36 @@ export default function Home() {
           <a href="#pricing" className="hover:text-blue-600">Pricing</a>
         </nav>
         <div className="space-x-4">
-          {/* Sign In Button */}
+        {isSignedIn ? (
+        // When the user is authenticated
+        <>
+        <button
+          onClick={(e) => handleAuthRedirect(e, '/dashboard')}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Go to Dashboard
+        </button>
+         <UserButton />
+        </>
+      ) : (
+          
+          <>
+
           <button
-            onClick={(e) => handleAuthRedirect(e, '/auth/sign-in')}
+            onClick={(e) => handleAuthRedirect(e, '/sign-in')}
             className="hidden md:inline-block bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded hover:bg-blue-50"
           >
             Sign In
           </button>
-          {/* Try for Free / Sign Up Button */}
+        
           <button
-            onClick={(e) => handleAuthRedirect(e, '/auth/sign-up')}
+            onClick={(e) => handleAuthRedirect(e, '/sign-up')}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Try For Free
           </button>
+          </>
+      )}
         </div>
       </header>
 
