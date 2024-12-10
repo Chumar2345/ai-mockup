@@ -46,14 +46,19 @@ export async function POST(request) {
           plan, // Save the plan
           mockUsed: 0, // Start with 0 mocks used
           mockLimit: mockInterviewLimits[plan], // Set mock limit based on the plan
-          createdAt: new Date().toISOString(), // Set created date if this is a new user
+          createdAt: new Date().toISOString(),
+          endDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(), // Set created date if this is a new user
+          paymentStatus:"completed",
         })
         .onConflictDoUpdate({
           target: [Users.email], // Resolve conflict based on email
           set: {
             plan, // Update the plan
             mockUsed: 0, // Reset the used mock count
-            mockLimit: mockInterviewLimits[plan], // Update the mock limit
+            mockLimit: mockInterviewLimits[plan],
+            createdAt: new Date().toISOString(),
+            endDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(), // Update the mock limit
+            paymentStatus:"completed",
           },
         })
         .execute();

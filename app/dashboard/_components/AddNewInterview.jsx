@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { chatSession } from "@/utils/GeminiAIModal";
 import { LoaderCircle } from "lucide-react";
-import { MockInterview } from "@/utils/schema";
+import { MockInterview,Users } from "@/utils/schema";
 import { v4 as uuidv4 } from 'uuid';
 import { db } from "@/utils/db";
 import { useUser } from "@clerk/nextjs";
@@ -31,9 +31,11 @@ function AddNewInterview() {
   const { user } = useUser();
   const router = useRouter();
   const [InterviewList, setInterviewList] = useState([]);
+  const [UserList, setUserList] = useState([]);
   const [interviewCount, setInterviewCount] = useState(0);
 
   useEffect(() => {
+     GetUser();
     user && GetInterviewList();
   }, [user]);
   
@@ -48,12 +50,23 @@ function AddNewInterview() {
   
         setInterviewList(result.length);
   };
+  const GetUser = async () => {
+    const getUser = await db
+      .select()
+      .from(Users)
+      .where(
+        eq(Users.email, user?.primaryEmailAddress?.emailAddress)
+      )
+      .orderBy(desc(Users.id));
+    // return getUser;
+    setUserList(getUser[0]);
+  };
   const handleAddInterview = () => {
-    console.log(InterviewList)
-    if (InterviewList <= 3) {
+     GetUser();
+    if (UserList.mockLimit != 0 || UserList.plan == 'plan_pro') {
       setOpenDialog(true);
     } else {
-      alert("You have already added 3 interviews. You cannot add more."); 
+      alert(`You have already added ${UserList.mockUsed} interviews. You cannot add more.`); 
     }
   };
 
@@ -94,6 +107,24 @@ function AddNewInterview() {
             createdBy: user?.primaryEmailAddress?.emailAddress,
             createdAt: moment().format('DD-MM-YYYY'),
           }).returning({ mockId: MockInterview.mockId });
+
+              // Update the user data
+            const userRecord = await db
+            .select()
+            .from(Users)
+            .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress)) // Pass both field and value to eq()
+            .execute();
+
+            if (userRecord.length > 0) {
+                await db
+                  .update(Users)
+                  .set({
+                    mockUsed: userRecord[0].mockUsed + 1,
+                    mockLimit: userRecord[0].mockLimit !== null ? userRecord[0].mockLimit - 1 : null,
+                  })
+                  .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress)) // Same fix here
+                  .execute();
+            }
           setLoading(false);
           router.push(`dashboard/interview/${res[0]?.mockId}`);
       } else {
@@ -107,7 +138,7 @@ function AddNewInterview() {
   };
 
   return (
-    <div>
+    <>
   <div
     className="p-10 border rounded-lg bg-secondary hover:scale-105 hover:shadow-md cursor-pointer transition-all"
     onClick={handleAddInterview}
@@ -174,7 +205,7 @@ function AddNewInterview() {
       </DialogDescription>
     </DialogContent>
   </Dialog>
-</div>
+</>
 
   );
 }

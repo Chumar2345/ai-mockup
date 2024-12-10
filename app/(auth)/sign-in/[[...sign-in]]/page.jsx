@@ -68,7 +68,7 @@ export default function Page() {
                 Eligendi nam dolorum aliquam, quibusdam aperiam voluptatum.
               </p>
             </div>
-            <SignIn />
+            <SignIn afterSignInUrl="/sync-user" />
           </div>
         </main>
       </div>

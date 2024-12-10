@@ -1,41 +1,45 @@
-import { db } from "@/utils/db";
+"use client"; // Mark this component as a Client Component
+
+import { useEffect } from 'react';
+import { useAuth, useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation'; // Use this instead of `next/router` in App Router
 import { Users } from "@/utils/schema";
-import { redirect } from "next/dist/server/api-utils";
-import { useUser } from '@clerk/nextjs';
+import { db } from "@/utils/db";
+import { LoaderCircle } from "lucide-react";
+
+export default function RedirectHandler() {
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
+  const router = useRouter();
 
 
-export default  async function SyncUser() {
+  useEffect(() => {
+   
+    if (isSignedIn && user) {
+      // Save user data to your backend
+      router.push('/dashboard');
+      const saveUserData = async () => {
+        try {
+          await db.insert(Users).values({
+            email: user?.primaryEmailAddress?.emailAddress, // Use the email from session metadata
+            plan: 'plan_free', // Save the plan
+            mockUsed: 0, // Start with 0 mocks used
+            mockLimit: 3, // Set mock limit based on the plan
+            createdAt: new Date().toISOString(),
+            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(), // Set end date 1 month later
+            paymentStatus: "Null",
+          }).onConflictDoNothing(); // Avoid duplicate entries
 
-    const { user } = useUser();
-console.log(user);
-    // Define limits based on the plan
-    const mockInterviewLimits = {
-        plan_free: 3,
-        plan_basic: 5,
-        plan_pro: null, // Unlimited
-    };
+          // Redirect to the desired page
+          // router.push('/dashboard'); // Change to your target route
+        } catch (error) {
+          console.error('Failed to save user data:', error);
+        }
+      };
 
-    const plan = 'plan';
-
-    // await db
-    // .insert(Users)
-    // .values({
-    // email: user?.primaryEmailAddress?.emailAddress,
-    //   plan, // Save the plan
-    //   mockUsed: 0, // Start with 0 mocks used
-    //   mockLimit: mockInterviewLimits[plan], // Set mock limit based on the plan
-    //   createdAt: new Date().toISOString(), // Set created date if this is a new user
-    // })
-    // .onConflictDoUpdate({
-    //   target: [Users.email], // Resolve conflict based on email
-    //   set: {
-    //     plan, // Update the plan
-    //     mockUsed: 0, // Reset the used mock count
-    //     mockLimit: mockInterviewLimits[plan], // Update the mock limit
-    //   },
-    // })
-    // .execute();
-
-    return redirect("/dashboard");
-
-  }
+      saveUserData();
+    }
+  }, [isSignedIn, user, router]);
+  
+  return null;
+}

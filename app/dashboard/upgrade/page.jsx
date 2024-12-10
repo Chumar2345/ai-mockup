@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import { useUser } from '@clerk/clerk-react'; // Import useUser from Clerk
+import { useUser } from '@clerk/nextjs'; // Import useUser from Clerk
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
@@ -46,7 +46,7 @@ const UpgradePage = () => {
   // If the user is signed in, set the email
   useEffect(() => {
     if (isLoaded && isSignedIn && user) {
-      setEmail(user.emailAddress); // Get the email from the Clerk user object
+      setEmail(user?.primaryEmailAddress?.emailAddress); // Get the email from the Clerk user object
     }
   }, [isLoaded, isSignedIn, user]);
 

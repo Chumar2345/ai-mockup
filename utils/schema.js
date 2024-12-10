@@ -7,7 +7,9 @@ export const Users = pgTable('users', {
     plan: varchar('plan').notNull(), // free, basic, or pro
     mockUsed: integer('mockUsed').default(0), // Tracks used interviews
     mockLimit: integer('mockLimit'), // Null for unlimited
-    createdAt: varchar('createdAt')
+    createdAt: varchar('createdAt'),
+    endDate: varchar('endDate'),
+    paymentStatus: varchar('paymentStatus',{ length: 255 }).default('Null'),
 });
 
 // Existing MockInterview table
