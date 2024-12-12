@@ -63,11 +63,15 @@ function AddNewInterview() {
   };
   const handleAddInterview = () => {
      GetUser();
-    if (UserList.mockLimit != 0 || UserList.plan == 'plan_pro') {
+     if(UserList.length > 0){
+       if (UserList.mockLimit != 0 || UserList.plan == 'plan_pro') {
+         setOpenDialog(true);
+       } else {
+         alert(`You have already added ${UserList.mockUsed} interviews. You cannot add more.`); 
+       }
+     } else {
       setOpenDialog(true);
-    } else {
-      alert(`You have already added ${UserList.mockUsed} interviews. You cannot add more.`); 
-    }
+     }
   };
 
   const onSubmit = async (e) => {
