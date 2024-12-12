@@ -29,6 +29,7 @@ export async function POST(request) {
     // Get email and plan from metadata (use real email here)
     const email = session.metadata.email;
     const plan = session.metadata.plan;
+    const status = session.payment_status;
 
     // Define limits based on the plan
     const mockInterviewLimits = {
@@ -48,7 +49,7 @@ export async function POST(request) {
           mockLimit: mockInterviewLimits[plan], // Set mock limit based on the plan
           createdAt: new Date().toISOString(),
           endDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(), // Set created date if this is a new user
-          paymentStatus:"completed",
+          paymentStatus:status,
         })
         .onConflictDoUpdate({
           target: [Users.email], // Resolve conflict based on email
@@ -58,7 +59,7 @@ export async function POST(request) {
             mockLimit: mockInterviewLimits[plan],
             createdAt: new Date().toISOString(),
             endDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(), // Update the mock limit
-            paymentStatus:"completed",
+            paymentStatus:status,
           },
         })
         .execute();

@@ -57,6 +57,7 @@ const UpgradePage = () => {
     }
 
     try {
+      
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         body: JSON.stringify({ planId, email }),
@@ -64,11 +65,10 @@ const UpgradePage = () => {
           'Content-Type': 'application/json',
         },
       });
-
       const { id } = await response.json();
       const stripe = await stripePromise;
       const result = await stripe.redirectToCheckout({ sessionId: id });
-
+       console.log(result);
       if (result.error) {
         console.error('Stripe Checkout error:', result.error.message);
       }
