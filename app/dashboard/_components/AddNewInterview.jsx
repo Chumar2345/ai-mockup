@@ -19,6 +19,8 @@ import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
+import alertify from 'alertifyjs';
+import 'alertifyjs/build/css/alertify.min.css'; 
 
 
 function AddNewInterview() {
@@ -58,20 +60,30 @@ function AddNewInterview() {
         eq(Users.email, user?.primaryEmailAddress?.emailAddress)
       )
       .orderBy(desc(Users.id));
+      
     // return getUser;
     setUserList(getUser[0]);
   };
   const handleAddInterview = () => {
      GetUser();
-     if(UserList.length > 0){
-       if (UserList.mockLimit != 0 || UserList.plan == 'plan_pro') {
-         setOpenDialog(true);
-       } else {
-         alert(`You have already added ${UserList.mockUsed} interviews. You cannot add more.`); 
-       }
-     } else {
-      setOpenDialog(true);
-     }
+    //  console.log(UserList.length);
+
+      
+       const endDate = new Date(UserList.endDate);
+       
+       const now = new Date();
+       if (endDate >= now) {
+          console.log(endDate);
+          if (UserList.mockLimit != 0 || UserList.plan == 'plan_pro') {
+            setOpenDialog(true);
+          } else {
+            alertify.alert(`You have already added ${UserList.mockUsed} interviews. You cannot add more.`); 
+          }
+        } else {
+          alertify.alert('The end date has passed. You cannot add more interviews.');
+        }
+        
+
   };
 
   const onSubmit = async (e) => {

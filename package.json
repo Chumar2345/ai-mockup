@@ -20,6 +20,7 @@
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-slot": "^1.0.2",
     "@stripe/stripe-js": "^5.0.0",
+    "alertifyjs": "^1.14.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.4",
