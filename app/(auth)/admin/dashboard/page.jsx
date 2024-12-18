@@ -15,18 +15,20 @@ export default function Dashboard() {
 
         {/* Main Content */}
         <main style={{
-              flex: 1,
-              display: 'flex',             // Enables flexbox
-              justifyContent: 'center',    // Centers content horizontally
-              // alignItems: 'center',        // Centers content vertically
-              padding: '20px',
-              backgroundColor: '#f9fafb',
-              height: '100vh'              // Ensures it takes full viewport height
+                  flex: 1,
+                  display: 'flex',
+                  justifyContent: 'center',
+
+                  padding: '20px',
+                  backgroundColor: '#f9fafb',
+                  minHeight: '100vh'
             }}>
               <div style={{
-                width: '100%',              // Sets width to 80% of the parent container
-                maxWidth: '1100px',  
-                marginLeft:'20px',       // Restricts maximum width
+                width: '100%', 
+                maxWidth: '1100px',
+                backgroundColor: '#fff',  
+                borderRadius: '8px',      
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)', 
               }}>
                 <Listing />
               </div>
