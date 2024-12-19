@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Users } from '@/utils/schema';
 import { db } from '@/utils/db';
-import { desc } from 'drizzle-orm';
+import { desc,eq } from 'drizzle-orm';
 import alertify from 'alertifyjs';
 import DataTable from 'react-data-table-component'; // Import DataTable
 import 'alertifyjs/build/css/alertify.min.css';
@@ -28,21 +28,35 @@ export default function Listing() {
   };
 
   // Handle Delete Confirmation
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+
     alertify.confirm(
       'Delete User',
       'Are you sure you want to delete this user?',
-      () => {
-        const updatedItems = items.filter((item) => item.id !== id);
-        setItems(updatedItems);
-        setFilteredItems(updatedItems);
-        alertify.success('User deleted successfully');
+      async () => {
+        try {
+          // Update the is_deleted value in the database
+          await db.update(Users)
+            .set({ is_delete: 1 }) // Set is_deleted to 1
+            .where(eq(Users.id,id)); // Match the user by ID
+  
+          // Update the UI
+          const updatedItems = items.filter((item) => item.id !== id); // Optionally filter out deleted items
+          setItems(updatedItems);
+          setFilteredItems(updatedItems);
+  
+          alertify.success('User deleted successfully');
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          alertify.error('Failed to delete the user. Please try again.');
+        }
       },
       () => {
         alertify.error('Delete operation cancelled');
       }
     );
   };
+  
 
   // Handle Search
   useEffect(() => {
@@ -89,7 +103,7 @@ export default function Listing() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>User Listing</h2>
+      <h2 style={{ marginBottom: '20px' }}>User Listing</h2>
 
       {/* Search Box */}
       <input

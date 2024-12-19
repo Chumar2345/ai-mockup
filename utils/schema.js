@@ -9,6 +9,7 @@ export const Users = pgTable('users', {
     mockLimit: integer('mockLimit'), // Null for unlimited
     createdAt: varchar('createdAt'),
     endDate: varchar('endDate'),
+    is_delete: integer('is_delete').default(0),
     paymentStatus: varchar('paymentStatus',{ length: 255 }).default('Null'),
 });
 
@@ -35,4 +36,14 @@ export const UserAnswer = pgTable('userAnswer', {
     rating: varchar('rating'),
     userEmail: varchar('userEmail'),
     createdAt: varchar('createdAt')
+});
+
+
+export const Plan = pgTable('plans', {
+    id: serial('id').primaryKey(),
+    type: varchar('type').notNull().unique(),
+    name: varchar('name').notNull(), // free, basic, or pro
+    price: integer('price').notNull(), // free, basic, or pro
+    features: varchar('feature').notNull(),
+    createdAt: varchar('createdAt'),
 });

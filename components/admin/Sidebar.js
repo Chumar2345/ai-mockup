@@ -1,14 +1,30 @@
+"use client";
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Sidebar() {
+
+    const router = useRouter();
+    
+    const handleAuthRedirect = (e, path) => {
+      e.preventDefault();
+      router.push(path); // Use programmatic navigation
+    };
   return (
     <aside style={styles.sidebar}>
       <ul style={styles.list}>
         <li style={styles.listItem}>
-          <Link href="/dashboard">Home</Link>
+        <a
+            href="#"
+            onClick={(e) => handleAuthRedirect(e, '/admin/package')}  
+          >
+            Package
+          </a>
         </li>
         <li style={styles.listItem}>
-          <Link href="/dashboard/users">Users</Link>
+          <a href="#"
+            onClick={(e) => handleAuthRedirect(e, '/admin/dashboard')}>Users</a>
         </li>
         <li style={styles.listItem}>
           <Link href="/dashboard/settings">Settings</Link>
