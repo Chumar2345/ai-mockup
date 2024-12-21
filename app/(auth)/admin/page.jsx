@@ -11,13 +11,21 @@ const AdminLogin = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log(JSON.stringify({ email, password }));
+    const res = await fetch('/api/auth/admin-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Here you would handle the login logic (e.g., API request to verify admin credentials)
-    if (email === 'admin@example.com' && password === 'admin123') {
-      // On success, redirect to the admin dashboard (or wherever you need)
-      window.location.href = '/admin/dashboard'; // Example redirect
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('token', data.token); // Store token for subsequent API requests
+      router.push('/admin/dashboard'); // Redirect to dashboard
     } else {
-      setErrorMessage('Invalid credentials');
+      alert('Invalid credentials');
     }
   };
 

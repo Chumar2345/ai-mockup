@@ -1,8 +1,32 @@
+"use client";
+import React, { useState,useEffect } from "react";
 import Header from '@/components/admin/Header';
 import Sidebar from '@/components/admin/Sidebar';
 import Listing from '@/components/admin/Listing';
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    if (!token) {
+      router.push('/admin/login');
+    } else {
+      console.log("1111")
+      try {
+        router.push('/admin/dashboard');
+        // const decoded = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET);
+        // console.log(decoded)
+        // if (decoded.role !== 'admin') {
+        //   throw new Error('Unauthorized');
+        // }
+      } catch (err) {
+        localStorage.removeItem('token');
+        router.push('/admin/login');
+      }
+    }
+  }, []);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* Header at the Top */}

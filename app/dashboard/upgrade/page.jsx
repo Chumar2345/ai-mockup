@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useUser } from '@clerk/nextjs'; // Import useUser from Clerk
+import { Plan } from "@/utils/schema";
+import { db } from "@/utils/db";
+import { desc,eq } from 'drizzle-orm';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
@@ -42,6 +45,20 @@ const plans = [
 const UpgradePage = () => {
   const { user, isLoaded, isSignedIn } = useUser(); // Use Clerk's useUser hook
   const [email, setEmail] = useState('');
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    GetPlan();
+  }, []);
+
+  // Fetch Plans from the database
+  const GetPlan = async () => {
+      const getPlans = await db
+        .select()
+        .from(Plan)
+        .orderBy(desc(Plan.id)); // Fetch plans in descending order by ID
+      setItems(getPlans); // Set the fetched items
+  };
 
   // If the user is signed in, set the email
   useEffect(() => {
@@ -92,7 +109,7 @@ const UpgradePage = () => {
         Choose a plan that suits your needs and unlock additional features.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {plans.map((plan) => (
+        {items.map((plan) => (
           <div
             key={plan.id}
             className="border rounded-lg p-6 shadow-lg text-center bg-white hover:shadow-xl transition-shadow duration-300"
@@ -100,12 +117,12 @@ const UpgradePage = () => {
             <h2 className="text-2xl font-semibold mb-4">{plan.name}</h2>
             <p className="text-xl font-bold text-green-600 mb-6">{plan.price}</p>
             <ul className="mb-6 space-y-3">
-              {plan.features.map((feature, index) => (
-                <li key={index} className="flex items-center space-x-2 text-gray-700">
+
+                <li  className="flex items-center space-x-2 text-gray-700">
                   <span className="text-green-500 text-lg">✓</span>
-                  <span>{feature}</span>
+                  <span>{plan.features}</span>
                 </li>
-              ))}
+            
             </ul>
             {plan.price !== '$0' ? (
               <button

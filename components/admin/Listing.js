@@ -78,6 +78,10 @@ export default function Listing() {
     { name: 'Created At', selector: (row) => new Date(row.createdAt).toLocaleString() },
     { name: 'End Date', selector: (row) => new Date(row.endDate).toLocaleString() },
     { name: 'Payment Status', selector: (row) => row.paymentStatus },
+    { 
+      name: 'Deleted Status', 
+      selector: (row) => row.is_delete === 0 ? 'Not Deleted' : 'Deleted' 
+    },
     {
       name: 'Actions',
       cell: (row) => (

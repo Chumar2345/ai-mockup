@@ -1,25 +1,37 @@
 import Stripe from 'stripe';
+import { Plan } from "@/utils/schema";
+import { db } from "@/utils/db";
+import { desc, eq } from 'drizzle-orm';
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request) {
-  const { planId, email } = await request.json(); // Add email to the request body
-  
-  let price = 0;
-
-  // Set price based on planId
-  if (planId === 'plan_basic') {
-    price = 999; // $9.99 in cents
-  } else if (planId === 'plan_pro') {
-    price = 1999; // $19.99 in cents
-  } else if (planId === 'plan_free') {
-    price = 0; // Free plan
-  } else {
-    return new Response(JSON.stringify({ error: 'Invalid planId' }), { status: 400 });
-  }
-
   try {
+    const { planId, email } = await request.json();
+    
+    if (!planId || !email) {
+      return new Response(JSON.stringify({ error: 'planId and email are required' }), { status: 400 });
+    }
+
+    const getPlanById = async (id) => {
+      const plan = await db
+        .select()
+        .from(Plan)
+        .where(eq(Plan.id, id))
+        .limit(1);
+      return plan[0];
+    };
+
+    const plan = await getPlanById(planId);
+
+    if (!plan) {
+      return new Response(JSON.stringify({ error: 'Plan not found' }), { status: 404 });
+    }
+
+    const price = plan.price;
+    const plan_name = plan.name;
+
     // Create a Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -28,7 +40,7 @@ export async function POST(request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: planId,
+              name: plan_name,
             },
             unit_amount: price,
           },
@@ -37,17 +49,16 @@ export async function POST(request) {
       ],
       mode: 'payment',
       metadata: {
-        email, // Pass the user's email
-        plan: planId, // Pass the planId as metadata
+        email,
+        plan: plan_name,
       },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success/`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel/`,
     });
 
-    // Return the session ID in the response
-    return new Response(JSON.stringify({ id: session.id }), { status: 200 });
+    return new Response(JSON.stringify({ id: session.id }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     console.error('Error creating Stripe session:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create checkout session' }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Failed to create checkout session' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }

@@ -15,20 +15,21 @@ export default function Sidebar() {
     <aside style={styles.sidebar}>
       <ul style={styles.list}>
         <li style={styles.listItem}>
-        <a
-            href="#"
-            onClick={(e) => handleAuthRedirect(e, '/admin/package')}  
-          >
-            Package
-          </a>
-        </li>
         <li style={styles.listItem}>
           <a href="#"
             onClick={(e) => handleAuthRedirect(e, '/admin/dashboard')}>Users</a>
         </li>
-        <li style={styles.listItem}>
-          <Link href="/dashboard/settings">Settings</Link>
+        <a
+            href="#"
+            onClick={(e) => handleAuthRedirect(e, '/admin/package')}  
+          >
+            Plans
+          </a>
         </li>
+       
+        {/* <li style={styles.listItem}>
+          <Link href="/dashboard/settings">Settings</Link>
+        </li> */}
       </ul>
     </aside>
   );

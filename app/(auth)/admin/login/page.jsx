@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 export default function Login() {
   const router = useRouter();
   const [error, setError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   // React Hook Form for validation
   const {
@@ -18,19 +20,22 @@ export default function Login() {
 
   // Submit handler
   const onSubmit = async (data) => {
-    try {
-      // Mock API call or replace with actual authentication logic
-      const response = await axios.post("/api/admin/login", {
-        username: data.username,
-        password: data.password,
-      });
-
-      if (response.status === 200) {
-        // Redirect to dashboard after successful login
-        router.push("/admin/dashboard");
-      }
-    } catch (err) {
-      setError("Invalid username or password.");
+    console.log(email)
+    const res = await fetch('/api/admin-auth', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log("Response status:", res.status);
+    // console.log("Response body:", await res.json());
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('token', data.token); // Store token for subsequent API requests
+      router.push('/admin/dashboard'); // Redirect to dashboard
+    } else {
+      alert('Invalid credentials');
     }
   };
 
@@ -70,6 +75,8 @@ export default function Login() {
             <input
               type="text"
               {...register("username", { required: "Username is required" })}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               style={{
                 width: "100%",
                 padding: "0.5rem",
@@ -92,6 +99,8 @@ export default function Login() {
             <input
               type="password"
               {...register("password", { required: "Password is required" })}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               style={{
                 width: "100%",
                 padding: "0.5rem",
