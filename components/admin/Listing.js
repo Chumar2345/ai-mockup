@@ -41,9 +41,9 @@ export default function Listing() {
             .where(eq(Users.id,id)); // Match the user by ID
   
           // Update the UI
-          const updatedItems = items.filter((item) => item.id !== id); // Optionally filter out deleted items
-          setItems(updatedItems);
-          setFilteredItems(updatedItems);
+          // const updatedItems = items.filter((item) => item.id !== id); // Optionally filter out deleted items
+          // setItems(updatedItems);
+          // setFilteredItems(updatedItems);
   
           alertify.success('User deleted successfully');
         } catch (error) {
@@ -85,19 +85,21 @@ export default function Listing() {
     {
       name: 'Actions',
       cell: (row) => (
-        <button
-          style={{
-            backgroundColor: '#dc3545',
-            color: '#fff',
-            border: 'none',
-            padding: '5px 10px',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-          onClick={() => handleDelete(row.id)}
-        >
-          Delete
-        </button>
+        row.is_delete === 0 ? ( // Check if the user is not deleted
+          <button
+            style={{
+              backgroundColor: '#dc3545',
+              color: '#fff',
+              border: 'none',
+              padding: '5px 10px',
+              borderRadius: '5px',
+              cursor: 'pointer',
+            }}
+            onClick={() => handleDelete(row.id)}
+          >
+            Delete
+          </button>
+        ) : null // Don't render anything if the user is deleted
       ),
       ignoreRowClick: true,
       allowOverflow: true,
